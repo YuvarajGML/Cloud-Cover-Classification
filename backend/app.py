@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field, field_validator
 from typing import Literal
 import pickle
 import os
@@ -7,7 +7,7 @@ import pandas as pd
 
 app = FastAPI()
 
-# ✅ Load model (ONLY load, never overwrite here)
+# ✅ Load model
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model_pipeline.pkl")
 
@@ -15,21 +15,36 @@ with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
 
-# ✅ Clean input schema (ONLY features, no target)
+# ✅ Input schema with validation
 class UserIP(BaseModel):
-    Temperature: float
-    Humidity: float
-    Wind_Speed: float
-    Precipitation: float
-    Cloud_Cover: str   # categorical
-    Atmospheric_Pressure: float
-    UV_Index: float
-    Visibility: float
+    Temperature: float = Field(..., ge=-50, le=60)
+    Humidity: float = Field(..., ge=0, le=100)
+    Wind_Speed: float = Field(..., ge=0, le=150)
+    Precipitation: float = Field(..., ge=0, le=100)
+    Cloud_Cover: str
+    Atmospheric_Pressure: float = Field(..., ge=800, le=1100)
+    UV_Index: float = Field(..., ge=0, le=15)
+    Visibility: float = Field(..., ge=0, le=20)
     Season: Literal["Autumn", "Spring", "Summer", "Winter"]
     Location: Literal["coastal", "inland", "mountain"]
 
+    # 🔹 Normalize Cloud Cover values
+    @field_validator("Cloud_Cover")
+    @classmethod
+    def validate_cloud_cover(cls, v):
+        allowed = {
+            "clear",
+            "partly cloudy",
+            "cloudy",
+            "overcast"
+        }
+        v_clean = v.strip().lower()
+        if v_clean not in allowed:
+            raise ValueError(f"Cloud_Cover must be one of {allowed}")
+        return v_clean
 
-# ✅ Health check endpoint
+
+# ✅ Health check
 @app.get("/")
 def root():
     return {"message": "Weather Prediction API is running 🚀"}
@@ -39,7 +54,7 @@ def root():
 @app.post("/predict")
 def predict(user_input: UserIP):
     try:
-        # 🔹 Convert input to model-compatible format
+        # 🔹 Map to training feature names
         input_dict = {
             "Temperature": user_input.Temperature,
             "Humidity": user_input.Humidity,
@@ -55,19 +70,22 @@ def predict(user_input: UserIP):
 
         input_df = pd.DataFrame([input_dict])
 
-        # 🔹 Prediction
+        # 🔹 Model prediction
         prediction = model.predict(input_df)[0]
 
-        # 🔹 Confidence (optional but powerful)
+        # 🔹 Confidence
         confidence = None
         if hasattr(model, "predict_proba"):
-            confidence = max(model.predict_proba(input_df)[0])
+            probs = model.predict_proba(input_df)[0]
+            confidence = float(max(probs))
 
-        # ✅ Return clean response (NO int casting!)
         return {
-            "prediction": prediction,
-            "confidence": round(float(confidence), 4) if confidence else None
+            "prediction": str(prediction),
+            "confidence": round(confidence, 4) if confidence is not None else None
         }
 
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
