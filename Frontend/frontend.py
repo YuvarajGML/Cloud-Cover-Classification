@@ -2,7 +2,7 @@ import textwrap
 import streamlit as st
 import requests
 
-API_URL = "http://127.0.0.1:8000/predict"
+API_URL = "API_URL = "https://cloud-cover-api.onrender.com/predict"
 
 # ─────────────────────────────────────────────
 # Page Config
