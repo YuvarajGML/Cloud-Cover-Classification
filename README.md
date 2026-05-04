@@ -1,113 +1,52 @@
-# 🌦️ Weather Prediction ML App
+# Cloud Cover Classification — ML Inference System
 
-A full-stack machine learning application that predicts weather conditions based on environmental parameters.
-Built using **FastAPI (backend)**, **Streamlit (frontend)**, and a **scikit-learn pipeline** for robust inference.
-
----
-
-## 🚀 Features
-
-* Predict weather type (Rainy, Clear, Cloudy, etc.)
-* End-to-end ML pipeline (no manual preprocessing required)
-* FastAPI backend for scalable inference
-* Streamlit frontend with clean UI
-* Confidence score for predictions
+Production-grade machine learning service for predicting weather conditions from environmental parameters.
+Exposed via a REST API and an interactive client, with a unified preprocessing + model pipeline to ensure consistent inference.
 
 ---
 
-## 🧠 Tech Stack
+## Live Demo
 
-* **Machine Learning**: scikit-learn (Pipeline)
-* **Backend**: FastAPI + Uvicorn
-* **Frontend**: Streamlit
-* **Data Processing**: pandas
+* **App**: https://cloud-cover-classification-cm3ajlcsp6ytwzkdphchzy.streamlit.app/
+
+<details>
+<summary>API (for technical review)</summary>
+
+* https://cloud-cover-api.onrender.com
+* https://cloud-cover-api.onrender.com/docs
+
+</details>
 
 ---
 
-## 📂 Project Structure
+## System Architecture
 
-```id="a9x2ke"
-weather-ml-app/
-│
-├── backend/
-│   ├── fastapi_app.py
-│   ├── model_pipeline.pkl
-│
-├── frontend/
-│   ├── streamlit_app.py
-│
-├── requirements.txt
-├── README.md
 ```
-
----
-
-## ⚙️ How It Works
-
-```id="1q3m9p"
-User Input (Streamlit UI)
+Client (Streamlit)
         ↓
-POST request to FastAPI (/predict)
+POST /predict
         ↓
-Model Pipeline (preprocessing + prediction)
+FastAPI Service
         ↓
-Prediction + Confidence returned
+scikit-learn Pipeline
+(preprocessing + model)
         ↓
-Displayed in UI
+Prediction + Confidence
 ```
 
 ---
 
-## ⚙️ Setup & Run Locally
+## API Contract
 
-### 1. Clone the repository
+### Endpoint
 
-```id="y6u2j8"
-git clone https://github.com/YuvarajGML/weather-ml-app.git
-cd weather-ml-app
+```
+POST /predict
 ```
 
----
+### Request
 
-### 2. Install dependencies
-
-```id="n8q3vc"
-pip install -r requirements.txt
-```
-
----
-
-### 3. Run FastAPI backend
-
-```id="7m2f7v"
-uvicorn backend.fastapi_app:app --reload
-```
-
-Backend runs at:
-
-```id="u3f8md"
-http://127.0.0.1:8000
-```
-
----
-
-### 4. Run Streamlit frontend
-
-```id="2k9dwr"
-streamlit run frontend/streamlit_app.py
-```
-
-Frontend runs at:
-
-```id="x6b1re"
-http://localhost:8501
-```
-
----
-
-## 🧪 Example Input
-
-```json id="m8f2pk"
+```json
 {
   "Temperature": 14.0,
   "Humidity": 73,
@@ -122,11 +61,9 @@ http://localhost:8501
 }
 ```
 
----
+### Response
 
-## 📊 Example Output
-
-```json id="g5r9vx"
+```json
 {
   "prediction": "Rainy",
   "confidence": 0.87
@@ -135,25 +72,64 @@ http://localhost:8501
 
 ---
 
-## 💡 Key Engineering Highlights
+## Tech Stack
 
-* Designed a **robust ML pipeline** to prevent feature mismatch errors
-* Handled **categorical encoding within the pipeline**
-* Ensured **consistent feature schema between training and inference**
-* Built a **clean API interface for real-time predictions**
-* Integrated frontend and backend seamlessly
-
----
-
-## 🚀 Future Improvements
-
-* Deploy backend (Render / Railway)
-* Deploy frontend (Streamlit Cloud)
-* Add batch prediction endpoint
-* Add analytics dashboard
+* **ML**: scikit-learn (Pipeline, ColumnTransformer)
+* **API**: FastAPI, Uvicorn
+* **Client**: Streamlit
+* **Data**: pandas
+* **Deployment**: Render, Streamlit Cloud
 
 ---
 
-## 👨‍💻 Author
+## Local Setup
 
-**Yuvaraj Gopi**
+```bash
+git clone https://github.com/YuvarajGML/Cloud-Cover-Classification.git
+cd Cloud-Cover-Classification
+pip install -r requirements.txt
+```
+
+### Run API
+
+```bash
+uvicorn backend.app:app --reload
+```
+
+### Run Client
+
+```bash
+streamlit run frontend/streamlit_app.py
+```
+
+---
+
+## Repository Structure
+
+```
+Cloud-Cover-Classification/
+│
+├── backend/
+│   ├── app.py
+│   └── model_pipeline.pkl
+│
+├── frontend/
+│   └── streamlit_app.py
+│
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Engineering Notes
+
+* Single pipeline artifact ensures consistent preprocessing and inference
+* Input validation enforced via FastAPI + Pydantic
+* Stateless inference service design
+
+---
+
+## Author
+
+Yuvaraj Gopi
