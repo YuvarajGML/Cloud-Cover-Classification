@@ -525,13 +525,12 @@ with right:
             "Temperature": temperature,
             "Humidity": humidity,
             "Wind_Speed": wind_speed,
-            "Precipitation_Pct": precipitation,
+            "Precipitation": precipitation,
             "Atmospheric_Pressure": pressure,
-            "Visibility_km": visibility,
+            "Visibility": visibility,
             "Season": season,
             "Location": location
         }
-        st.write(payload)
         with st.spinner("Running inference…"):
             try:
                 res = requests.post(API_URL, json=payload, timeout=60)
