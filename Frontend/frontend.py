@@ -534,7 +534,7 @@ with right:
 
         with st.spinner("Running inference…"):
             try:
-                res = requests.post(API_URL, json=payload, timeout=10)
+                res = requests.post(API_URL, json=payload, timeout=60)
 
                 if res.status_code == 200:
                     data = res.json()
