@@ -1,30 +1,33 @@
-# WeatherIQ — Production ML Inference Platform
+# WeatherIQ — ML Inference System
 
-WeatherIQ is a production-oriented machine learning system for weather condition classification based on environmental parameters.
+WeatherIQ is a machine learning inference system for classifying weather conditions from environmental parameters.
 
-The project focuses on the engineering aspects of deploying machine learning models into real-world inference systems, including:
+The project focuses on deploying machine learning models through a modular inference architecture with:
 - API-based model serving
 - reproducible preprocessing pipelines
 - frontend/backend integration
 - containerized deployment
-- modular system design
+- real-time prediction workflows
 
-The platform exposes a FastAPI inference service alongside an interactive Streamlit client for real-time predictions.
+The platform exposes a FastAPI inference service alongside an interactive Streamlit frontend for live predictions.
 
 ---
 
-## Live Demo
+# Live Demo
 
-### Frontend Application
+## Frontend Application
+
 🌐 https://cloud-cover-classification-cm3ajlcsp6ytwzkdphchzy.streamlit.app/
 
 <details>
 <summary><strong>Backend API & Documentation</strong></summary>
 
 ### API Base URL
+
 https://cloud-cover-api.onrender.com
 
 ### Swagger Documentation
+
 https://cloud-cover-api.onrender.com/docs
 
 </details>
@@ -64,13 +67,13 @@ https://cloud-cover-api.onrender.com/docs
 # Engineering Highlights
 
 - RESTful inference API using FastAPI
-- Structured request validation with Pydantic
+- Request validation using Pydantic schemas
 - Unified preprocessing and inference workflow
-- Serialized ML artifact pipeline for reproducible inference
-- Confidence score estimation using probability outputs
-- Decoupled frontend and backend architecture
+- Serialized ML artifact bundle for reproducible inference
+- Probability-based confidence estimation
+- Decoupled frontend and backend services
 - Containerized deployment using Docker and Docker Compose
-- Production-style service orchestration
+- Modular deployment-ready project structure
 
 ---
 
@@ -114,13 +117,13 @@ POST /predict
 
 # ML Inference Pipeline
 
-The backend uses a serialized artifact bundle containing:
+The backend loads a serialized artifact bundle containing:
 - trained classification model
 - feature scaler
 - one-hot encoder
 - feature mappings
 
-This ensures preprocessing consistency between training and production inference while reducing feature drift and inference mismatch.
+This ensures preprocessing consistency between training and inference environments while reducing feature mismatch during deployment.
 
 ---
 
@@ -139,13 +142,13 @@ This ensures preprocessing consistency between training and production inference
 
 # Dockerized Deployment
 
-## Build Services
+## Build Containers
 
 ```bash
 docker compose build
 ```
 
-## Run Application
+## Run Services
 
 ```bash
 docker compose up
@@ -169,7 +172,7 @@ cd Cloud-Cover-Classification
 ```bash
 cd backend
 pip install -r requirements.txt
-uvicorn app:app --reload
+uvicorn app:app --reload --port 10000
 ```
 
 ---
@@ -192,13 +195,16 @@ Cloud-Cover-Classification/
 ├── backend/
 │   ├── app.py
 │   ├── requirements.txt
+│   ├── Dockerfile
 │   └── weather_model_bundle.pkl
 │
 ├── Frontend/
 │   ├── frontend.py
-│   └── requirements.txt
+│   ├── requirements.txt
+│   └── Dockerfile
 │
 ├── docker-compose.yml
+├── .dockerignore
 └── README.md
 ```
 
