@@ -531,7 +531,7 @@ with right:
             "Season": season,
             "Location": location
         }
-
+        st.write(payload)
         with st.spinner("Running inference…"):
             try:
                 res = requests.post(API_URL, json=payload, timeout=60)
