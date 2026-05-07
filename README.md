@@ -1,12 +1,15 @@
-# WeatherIQ — Cloud Cover Prediction System
+# WeatherIQ — Production ML Inference Platform
 
-Production-grade machine learning inference system for predicting weather conditions from environmental parameters using a unified preprocessing and classification pipeline.
+WeatherIQ is a production-oriented machine learning system for weather condition classification based on environmental parameters.
 
-The platform combines:
-- a FastAPI backend inference service
-- an interactive Streamlit frontend
-- Dockerized deployment architecture
-- reproducible machine learning inference workflows
+The project focuses on the engineering aspects of deploying machine learning models into real-world inference systems, including:
+- API-based model serving
+- reproducible preprocessing pipelines
+- frontend/backend integration
+- containerized deployment
+- modular system design
+
+The platform exposes a FastAPI inference service alongside an interactive Streamlit client for real-time predictions.
 
 ---
 
@@ -16,7 +19,7 @@ The platform combines:
 🌐 https://cloud-cover-classification-cm3ajlcsp6ytwzkdphchzy.streamlit.app/
 
 <details>
-<summary><strong>Backend API & Technical Documentation</strong></summary>
+<summary><strong>Backend API & Documentation</strong></summary>
 
 ### API Base URL
 https://cloud-cover-api.onrender.com
@@ -45,7 +48,7 @@ https://cloud-cover-api.onrender.com/docs
            │
            ▼
 ┌──────────────────────┐
-│  ML Inference Stack  │
+│  ML Inference Layer  │
 │                      │
 │ • Feature Scaling    │
 │ • One-Hot Encoding   │
@@ -58,17 +61,16 @@ https://cloud-cover-api.onrender.com/docs
 
 ---
 
-# Features
+# Engineering Highlights
 
-- RESTful machine learning inference API
-- Interactive Streamlit prediction dashboard
-- Confidence score estimation
-- Unified preprocessing + inference workflow
-- Dockerized multi-service architecture
-- FastAPI schema validation using Pydantic
-- Reproducible deployment environment
-- Production-oriented backend design
-- Modular frontend/backend separation
+- RESTful inference API using FastAPI
+- Structured request validation with Pydantic
+- Unified preprocessing and inference workflow
+- Serialized ML artifact pipeline for reproducible inference
+- Confidence score estimation using probability outputs
+- Decoupled frontend and backend architecture
+- Containerized deployment using Docker and Docker Compose
+- Production-style service orchestration
 
 ---
 
@@ -82,7 +84,7 @@ POST /predict
 
 ---
 
-## Request Body
+## Request Example
 
 ```json
 {
@@ -99,7 +101,7 @@ POST /predict
 
 ---
 
-## Response
+## Response Example
 
 ```json
 {
@@ -113,26 +115,21 @@ POST /predict
 # ML Inference Pipeline
 
 The backend uses a serialized artifact bundle containing:
-
 - trained classification model
 - feature scaler
 - one-hot encoder
-- numerical feature mappings
-- encoded categorical feature mappings
+- feature mappings
 
-This architecture ensures preprocessing consistency across:
-- training
-- validation
-- production inference
+This ensures preprocessing consistency between training and production inference while reducing feature drift and inference mismatch.
 
 ---
 
-# Tech Stack
+# Technology Stack
 
-| Layer | Technology |
+| Layer | Technologies |
 |---|---|
-| Machine Learning | scikit-learn 1.6.1 |
-| Backend API | FastAPI, Uvicorn |
+| Machine Learning | scikit-learn |
+| Backend | FastAPI, Uvicorn |
 | Frontend | Streamlit |
 | Data Processing | pandas, NumPy |
 | Containerization | Docker, Docker Compose |
@@ -142,13 +139,11 @@ This architecture ensures preprocessing consistency across:
 
 # Dockerized Deployment
 
-## Build Containers
+## Build Services
 
 ```bash
 docker compose build
 ```
-
----
 
 ## Run Application
 
@@ -158,17 +153,7 @@ docker compose up
 
 ---
 
-## Available Services
-
-| Service | URL |
-|---|---|
-| Frontend | http://localhost:8501 |
-| Backend API | http://localhost:10000 |
-| Swagger Docs | http://localhost:10000/docs |
-
----
-
-# Local Development Setup
+# Local Development
 
 ## Clone Repository
 
@@ -179,7 +164,7 @@ cd Cloud-Cover-Classification
 
 ---
 
-## Backend Setup
+## Start Backend
 
 ```bash
 cd backend
@@ -189,7 +174,7 @@ uvicorn app:app --reload
 
 ---
 
-## Frontend Setup
+## Start Frontend
 
 ```bash
 cd Frontend
@@ -206,46 +191,16 @@ Cloud-Cover-Classification/
 │
 ├── backend/
 │   ├── app.py
-│   ├── Dockerfile
 │   ├── requirements.txt
 │   └── weather_model_bundle.pkl
 │
 ├── Frontend/
 │   ├── frontend.py
-│   ├── Dockerfile
 │   └── requirements.txt
 │
 ├── docker-compose.yml
 └── README.md
 ```
-
----
-
-# Docker Images
-
-- Backend: `pridesage32/weather-backend`
-- Frontend: `pridesage32/weather-frontend`
-
----
-
-# Engineering Notes
-
-- Stateless inference service design
-- Unified preprocessing and inference pipeline
-- Strict schema validation via FastAPI + Pydantic
-- Decoupled frontend/backend architecture
-- Reproducible containerized deployment environment
-
----
-
-# Future Improvements
-
-- CI/CD pipeline integration
-- Kubernetes deployment
-- Model monitoring and logging
-- GPU-backed inference support
-- Authentication and rate limiting
-- Automated retraining workflow
 
 ---
 
