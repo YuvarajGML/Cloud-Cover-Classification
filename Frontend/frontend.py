@@ -485,17 +485,24 @@ with left:
             precipitation = st.slider("Precipitation (%)", 0, 100, 0)
         with mw2:
             wind_speed = st.number_input("Wind Speed (km/h)", value=5.0, step=0.5, format="%.1f")
-            uv_index = st.slider("UV Index", 0, 15, 5)
 
         # Sky & Environment
-        st.markdown('<p class="input-group-label">Sky & Environment</p>', unsafe_allow_html=True)
-        env1, env2, env3 = st.columns(3, gap="medium")
+        # Environment
+        st.markdown('<p class="input-group-label">Environment</p>', unsafe_allow_html=True)
+
+        env1, env2 = st.columns(2, gap="medium")
+
         with env1:
-            cloud_cover = st.selectbox("Cloud Cover", ["clear", "partly cloudy", "overcast"])
+            season = st.selectbox(
+                "Season",
+                ["Winter", "Spring", "Summer", "Autumn"]
+            )
+
         with env2:
-            season = st.selectbox("Season", ["Winter", "Spring", "Summer", "Autumn"])
-        with env3:
-            location = st.selectbox("Location Type", ["inland", "coastal", "mountain"])
+            location = st.selectbox(
+                "Location Type",
+                ["inland", "coastal", "mountain"]
+            )
 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -518,11 +525,9 @@ with right:
             "Temperature": temperature,
             "Humidity": humidity,
             "Wind_Speed": wind_speed,
-            "Precipitation": precipitation,
-            "Cloud_Cover": cloud_cover,
+            "Precipitation_Pct": precipitation,
             "Atmospheric_Pressure": pressure,
-            "UV_Index": uv_index,
-            "Visibility": visibility,
+            "Visibility_km": visibility,
             "Season": season,
             "Location": location
         }

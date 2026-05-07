@@ -1,91 +1,95 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field, field_validator
+from fastapi import FastAPI
+from pydantic import BaseModel
 from typing import Literal
 import pickle
 import os
 import pandas as pd
+import numpy as np
 
 app = FastAPI()
 
-# ✅ Load model
+# ✅ Load artifacts bundle (ONLY load, never overwrite here)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "model_pipeline.pkl")
+MODEL_PATH = os.path.join(BASE_DIR, "weather_model_bundle.pkl")
 
 with open(MODEL_PATH, "rb") as f:
-    model = pickle.load(f)
+    artifacts = pickle.load(f)
+
+# ✅ Extract all components
+model = artifacts["model"]
+scaler = artifacts["scaler"]
+encoder = artifacts["encoder"]
+num_cols = artifacts["num_cols"]
+cat_cols = artifacts["cat_cols"]
+encoded_cols = artifacts["encoded_cols"]
 
 
-# ✅ Input schema with validation
+# ✅ Clean input schema
 class UserIP(BaseModel):
-    Temperature: float = Field(..., ge=-50, le=60)
-    Humidity: float = Field(..., ge=0, le=100)
-    Wind_Speed: float = Field(..., ge=0, le=150)
-    Precipitation: float = Field(..., ge=0, le=100)
-    Cloud_Cover: str
-    Atmospheric_Pressure: float = Field(..., ge=800, le=1100)
-    UV_Index: float = Field(..., ge=0, le=15)
-    Visibility: float = Field(..., ge=0, le=20)
+    Temperature: float
+    Humidity: float
+    Wind_Speed: float
+    Precipitation: float
+    Atmospheric_Pressure: float
+    Visibility: float
     Season: Literal["Autumn", "Spring", "Summer", "Winter"]
     Location: Literal["coastal", "inland", "mountain"]
 
-    # 🔹 Normalize Cloud Cover values
-    @field_validator("Cloud_Cover")
-    @classmethod
-    def validate_cloud_cover(cls, v):
-        allowed = {
-            "clear",
-            "partly cloudy",
-            "cloudy",
-            "overcast"
-        }
-        v_clean = v.strip().lower()
-        if v_clean not in allowed:
-            raise ValueError(f"Cloud_Cover must be one of {allowed}")
-        return v_clean
 
-
-# ✅ Health check
+# ✅ Health check endpoint
 @app.get("/")
 def root():
-    return {"message": "Weather Prediction API is running 🚀"}
+    return {"message": "Cloud Cover Prediction API is running 🚀"}
 
 
 # ✅ Prediction endpoint
 @app.post("/predict")
 def predict(user_input: UserIP):
     try:
-        # 🔹 Map to training feature names
+        # 🔹 Convert input to raw dataframe
         input_dict = {
             "Temperature": user_input.Temperature,
             "Humidity": user_input.Humidity,
             "Wind Speed": user_input.Wind_Speed,
             "Precipitation (%)": user_input.Precipitation,
-            "Cloud Cover": user_input.Cloud_Cover,
             "Atmospheric Pressure": user_input.Atmospheric_Pressure,
-            "UV Index": user_input.UV_Index,
             "Visibility (km)": user_input.Visibility,
             "Season": user_input.Season,
             "Location": user_input.Location
         }
 
-        input_df = pd.DataFrame([input_dict])
+        raw_data = pd.DataFrame([input_dict])
 
-        # 🔹 Model prediction
-        prediction = model.predict(input_df)[0]
+        # 🔹 Scale numerical features
+        raw_data[num_cols] = scaler.transform(raw_data[num_cols])
 
-        # 🔹 Confidence
+        # 🔹 One-hot encode categorical features
+        encoded_data = encoder.transform(raw_data[cat_cols])
+
+        encoded_df = pd.DataFrame(
+            encoded_data,
+            columns=encoded_cols
+        )
+
+        # 🔹 Combine final features
+        X_api = pd.concat(
+            [raw_data[num_cols], encoded_df],
+            axis=1
+        )
+
+        # 🔹 Prediction
+        prediction = model.predict(X_api)[0]
+
+        # 🔹 Confidence (optional but powerful)
         confidence = None
         if hasattr(model, "predict_proba"):
-            probs = model.predict_proba(input_df)[0]
-            confidence = float(max(probs))
+            confidence = np.max(model.predict_proba(X_api)[0])
 
+        # ✅ Clean response
         return {
             "prediction": str(prediction),
-            "confidence": round(confidence, 4) if confidence is not None else None
+            "confidence": round(float(confidence), 4) if confidence else None
         }
 
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
-
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
+        return {"error": str(e)}
